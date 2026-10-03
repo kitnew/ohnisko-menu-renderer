@@ -147,3 +147,12 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+
+# Local secrets and deployment-only settings
+/config.json
+/generated/
+
+# Generated private menu PDFs
+/generated/
+/jobs/*.json
+/worker.lock

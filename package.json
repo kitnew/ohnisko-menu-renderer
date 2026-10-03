@@ -1,0 +1,16 @@
+{
+  "name": "ohnisko-menu-renderer",
+  "version": "1.0.0",
+  "description": "Chromium PDF worker for the Ohnisko WordPress menu",
+  "main": "index.js",
+  "scripts": {
+    "test": "node --test job-store.test.mjs && node --test test.mjs",
+    "check": "node --check worker.mjs && node --check generate-pdf.mjs && node --check job-store.mjs && node --check test.mjs"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "dependencies": {
+    "@sparticuz/chromium": "^153.0.0",
+    "puppeteer-core": "^25.11.0"
+  }
+}
