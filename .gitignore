@@ -156,3 +156,5 @@ vite.config.ts.timestamp-*
 /generated/
 /jobs/*.json
 /worker.lock
+
+bin/
