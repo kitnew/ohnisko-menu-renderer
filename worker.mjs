@@ -7,6 +7,9 @@ import { readJob, transitionJob, writeJsonAtomic } from './job-store.mjs';
 const runtimeDir = path.dirname(fileURLToPath(import.meta.url));
 const jobsDir = path.join(runtimeDir, 'jobs');
 const config = JSON.parse(await fs.readFile(path.join(runtimeDir, 'config.json'), 'utf8'));
+if (typeof config.print_token !== 'string' || config.print_token.length < 32) {
+  throw new Error('Runtime config must contain a print_token of at least 32 characters.');
+}
 const generatorPath = path.join(runtimeDir, 'generate-pdf.mjs');
 const now = () => new Date().toISOString();
 
@@ -21,6 +24,8 @@ function runGenerator(inputUrl, outputFile) {
     child.on('close', exitCode => resolve({ exitCode, stdout: stdout.trim(), stderr: stderr.trim() }));
   });
 }
+
+const redactToken = value => value.replaceAll(config.print_token, '[redacted]');
 
 await fs.mkdir(jobsDir, { recursive: true });
 const pending = [];
@@ -66,8 +71,8 @@ try {
   temporaryOutput = `${outputFile}.${job.id}.part.pdf`;
   console.log(`Processing job: ${job.id}`);
   const result = await runGenerator(inputUrl.toString(), temporaryOutput);
-  job.generator_stdout = result.stdout;
-  job.generator_stderr = result.stderr;
+  job.generator_stdout = redactToken(result.stdout);
+  job.generator_stderr = redactToken(result.stderr);
   if (result.exitCode !== 0) throw new Error(`PDF generator failed with exit code ${result.exitCode}`);
   const stat = await fs.stat(temporaryOutput);
   if (stat.size < 100) throw new Error('Generated PDF is empty or incomplete.');

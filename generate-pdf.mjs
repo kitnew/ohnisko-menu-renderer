@@ -37,7 +37,7 @@ await fs.mkdir(path.dirname(outputFile), {
 
 const executablePath = await chromium.executablePath();
 
-console.log(`Opening: ${inputUrl}`);
+console.log(`Opening print endpoint: ${new URL(inputUrl).origin}${new URL(inputUrl).pathname}`);
 console.log(`Chromium: ${executablePath}`);
 console.log(`Output: ${outputFile}`);
 
