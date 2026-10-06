@@ -68,11 +68,19 @@ test('two A4 sheets preserve font, SVG, and background', async () => {
   }
 });
 
-test('overflow fails and leaves no PDF', async () => {
+test('overflow reports layout stages and leaves no PDF', async () => {
   const { temp, server } = await fixture(true);
   try {
-    await assert.rejects(exec(process.execPath, [path.join(temp, 'generate-elementor-test.mjs'), '123'], { timeout: 120000 }), /sheet 1: .* exceeds A4/);
-    assert.deepEqual(await fs.readdir(path.join(temp, 'elementor-tests')), []);
+    await assert.rejects(exec(process.execPath, [path.join(temp, 'generate-elementor-test.mjs'), '123', '--diagnose'], { timeout: 120000 }), error => {
+      assert.match(error.stdout, /LAYOUT domReady:/);
+      assert.match(error.stdout, /LAYOUT afterA4:/);
+      assert.match(error.stdout, /LAYOUT a4Viewport:/);
+      assert.match(error.stdout, /LAYOUT printMedia:/);
+      return /sheet 1: .* exceeds A4/.test(error.stderr);
+    });
+    const files = await fs.readdir(path.join(temp, 'elementor-tests'));
+    assert.equal(files.length, 1);
+    assert.match(files[0], /\.png$/);
   } finally {
     server.close();
     await fs.rm(temp, { recursive: true, force: true });

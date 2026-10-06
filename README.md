@@ -24,3 +24,5 @@ The command uses `site_url` and `print_token` from the existing private `config.
 Each `.ohnisko-a4` container must occupy one A4 sheet in the saved Elementor page. The renderer uses a 1920 px desktop viewport, screen media for Elementor styles, and zero print margins. It stops with a sheet number and element selector if an element exceeds the sheet, starts off the expected page boundary, or an image, font, or stylesheet fails to load.
 
 Run `node --test elementor-test.test.mjs` for a local two-sheet PDF and overflow fixture. The test uses `pdfinfo`, `pdffonts`, and `pdftoppm` to check page count, page size, embedded font, SVG, and background color.
+
+For a layout mismatch, run `./bin/node generate-elementor-test.mjs 624 --diagnose`. The output compares geometry and computed CSS before and after the A4 rules, after fonts load, at a 794 px viewport, and with print media. It omits the token and page text. If a sheet overflows, it also saves a private PNG screenshot beside the test PDFs.
