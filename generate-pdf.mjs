@@ -63,12 +63,27 @@ try {
   }
 
   await page.waitForFunction(
-    () => {
-      if (window.__OHNISKO_PRINT_ERROR__) throw new Error(window.__OHNISKO_PRINT_ERROR__);
-      return window.__OHNISKO_PRINT_READY__ === true;
-    },
-    { timeout: 60000 }
+    () =>
+    window.__OHNISKO_PRINT_READY__ === true ||
+    Boolean(window.__OHNISKO_PRINT_ERROR__),
+                             { timeout: 60000 }
   );
+
+  const printState = await page.evaluate(() => ({
+    ready: window.__OHNISKO_PRINT_READY__ === true,
+    error: window.__OHNISKO_PRINT_ERROR__ || null,
+    pages: document.querySelectorAll('.pagedjs_page').length,
+  }));
+
+  if (printState.error) {
+    throw new Error(`Print page failed: ${printState.error}`);
+  }
+
+  if (!printState.ready) {
+    throw new Error(
+      `Print page did not become ready; paged pages: ${printState.pages}`
+    );
+  }
 
   await page.pdf({
     path: outputFile,
